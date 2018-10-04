@@ -17,7 +17,8 @@ playingSize = 7
 # Create webdriver and options objects to open headless browser with
 options = Options()
 options.add_argument("--headless")
-browser = webdriver.Chrome("chromedriver.exe")
+browser = webdriver.Chrome("chromedriver.exe", chrome_options=options)
+browser.set_window_size(1000, 1000)
 
 # Create BeautifulSoup object to read webpages
 soup = bs4.BeautifulSoup(requests.get(playerRosterLink).text, "html.parser")
@@ -111,7 +112,7 @@ if len(swaps) > 0:
     usernameField.send_keys(username)
     passwordField.send_keys(password)
     signInButton.click()
-    time.sleep(2)
+    time.sleep(3)
     browser.find_element_by_link_text("TEAM").click()
 
     # Create list of drag buttons, sort out usable ones, click them in swap order
@@ -145,3 +146,5 @@ if len(swaps) > 0:
 
 
 ### ----------------------------------------------- ###
+
+browser.quit()
