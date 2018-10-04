@@ -2,11 +2,8 @@ import requests, bs4, time
 from selenium import webdriver
 
 # Defining links
-playerRosterLink = "http://fantasy.nfl.com/league/1179767/team/3?statCategory=projectedStats&week=1"
-
-browser = webdriver.PhantomJS()
-browser.get(playerRosterLink)
-print(browser.find_element_by_id("yui_3_15_0_1_1536208801398_678"))
+playerRosterLink = "http://fantasy.nfl.com/league/1179767/team/3?statCategory=projectedStats"
+signInLink = "https://www.nfl.com/login?s=fantasy&returnTo=http%3A%2F%2Ffantasy.nfl.com%2F%3Ficampaign%3Dfty-nav-hp"
 
 positions = [["QB"], ["RB"], ["RB"], ["WR"], ["WR"], ["TE"], ["WR", "RB"], ["BN"], ["BN"], ["BN"], ["BN"], ["BN"], ["BN"]]
 field = [["QB"], ["RB"], ["RB"], ["WR"], ["WR"], ["TE"], ["RB", "WR"]]
@@ -51,8 +48,11 @@ for i in range(0,teamSize):
     players[i].pos = info[i].div.em.text[:2]
 
  # Give projected points to player object list
-projectedPoints = roster.findAll("span", {"class": "playerWeekProjectedPts"})
+projectedPoints = roster.findAll("td", {"class": "projected"})
+print(projectedPoints)
 for i in range(0,teamSize):
+    print(len(players))
+    print(len(projectedPoints))
     players[i].points = float(projectedPoints[i].text)
     print(players[i])
 
@@ -80,12 +80,30 @@ for i in range(0,playingSize):
         players[lowestFieldPts] = players[highestBenchPts]
         players[highestBenchPts] = temp
 
+
 ### -------------------------------------- ###
 ###
 ### --- Open Browser Window and Make Swaps --- ###
 
+if len(swaps) > 0:
+    browser = webdriver.Chrome("D://Python//Drivers//chromedriver_win32//chromedriver.exe")
+    passwordFile = open("pass.txt") #It's in plaintext for now, will change in the future
 
+    username = passwordFile.readline().strip()
+    password = passwordFile.readline().strip()
+    
+    browser.get(signInLink)
+    
+    usernameField = browser.find_element_by_id("fanProfileEmailUsername")
+    passwordField = browser.find_element_by_id("fanProfilePassword")
+    signInButton = browser.find_element_by_tag_name("button")
+        
+    usernameField.sendKeys(username)
+    passworldField.sendKeys(password)
+    signInButton.click()
+
+    print(browser.find_element_by_id("my_league_team"))
+    
+    browser.quit()
 
 ### ------------------------------------------ ###
-
-browser.quit()
