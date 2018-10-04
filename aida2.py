@@ -8,10 +8,12 @@ playerRosterLinkChange = "http://fantasy.nfl.com/league/1179767/team/3"
 signInLink = "https://www.nfl.com/login?s=fantasy&returnTo=http%3A%2F%2Ffantasy.nfl.com%2F%3Ficampaign%3Dfty-nav-hp"
 freeAgentsLink = "http://fantasy.nfl.com/league/1179767/players?playerStatus=available&position=O&statCategory=projectedStats"
 
+# Global Constant Variables
 positions = [["QB"], ["RB"], ["RB"], ["WR"], ["WR"], ["TE"], ["WR", "RB"], ["BN"], ["BN"], ["BN"], ["BN"], ["BN"], ["BN"]]
 field = [["QB"], ["RB"], ["RB"], ["WR"], ["WR"], ["TE"], ["RB", "WR"]]
 teamSize = 13
 playingSize = 7
+agentsToCheck = 25 # Max 25, add multipage support to remove limit
 
 
 # Create webdriver and options objects to open headless browser with
@@ -137,7 +139,8 @@ if len(swaps) > 0:
 ###
 ### --- Check Free Agents for Better Players --- ###
 
-
+soup = bs4.BeautifulSoup(requests.get(freeAgentsLink).text, "html.parser")
+agents = soup.findAll("table", {"class": "tableType-player"})[0]
 
 ### -------------------------------------------- ###
 ###
