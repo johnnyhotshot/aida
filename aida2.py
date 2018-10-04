@@ -1,8 +1,10 @@
 import requests, bs4, time
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 # Defining links
 playerRosterLink = "http://fantasy.nfl.com/league/1179767/team/3?statCategory=projectedStats"
+playerRosterLinkChange = "http://fantasy.nfl.com/league/1179767/team/3"
 signInLink = "https://www.nfl.com/login?s=fantasy&returnTo=http%3A%2F%2Ffantasy.nfl.com%2F%3Ficampaign%3Dfty-nav-hp"
 
 positions = [["QB"], ["RB"], ["RB"], ["WR"], ["WR"], ["TE"], ["WR", "RB"], ["BN"], ["BN"], ["BN"], ["BN"], ["BN"], ["BN"]]
@@ -49,12 +51,8 @@ for i in range(0,teamSize):
 
  # Give projected points to player object list
 projectedPoints = roster.findAll("td", {"class": "projected"})
-print(projectedPoints)
 for i in range(0,teamSize):
-    print(len(players))
-    print(len(projectedPoints))
     players[i].points = float(projectedPoints[i].text)
-    print(players[i])
 
 ### ----------------------------------------------- ###
 ###
@@ -86,8 +84,11 @@ for i in range(0,playingSize):
 ### --- Open Browser Window and Make Swaps --- ###
 
 if len(swaps) > 0:
-    browser = webdriver.Chrome("D://Python//Drivers//chromedriver_win32//chromedriver.exe")
-    passwordFile = open("pass.txt") #It's in plaintext for now, will change in the future
+    options = Options()
+    options.add_argument("--headless")
+    browser = webdriver.Chrome("chromedriver.exe", chrome_options=options)
+    browser.set_window_size(1000, 1000)
+    passwordFile = open("pass.txt") #Yeah it's in plaintext for now, will change in the future - don't try this at home kids
 
     username = passwordFile.readline().strip()
     password = passwordFile.readline().strip()
@@ -96,13 +97,29 @@ if len(swaps) > 0:
     
     usernameField = browser.find_element_by_id("fanProfileEmailUsername")
     passwordField = browser.find_element_by_id("fanProfilePassword")
-    signInButton = browser.find_element_by_tag_name("button")
+    signInButton = browser.find_element_by_xpath("//*[@id='content']/div/div/div[2]/div[1]/div/div[3]/div[2]/main/div/div[2]/div[2]/form/div[3]/button")
         
-    usernameField.sendKeys(username)
-    passworldField.sendKeys(password)
+    usernameField.send_keys(username)
+    passwordField.send_keys(password)
     signInButton.click()
+    time.sleep(2)
+    
+    browser.find_element_by_link_text("TEAM").click()
 
-    print(browser.find_element_by_id("my_league_team"))
+    dragButtons = browser.find_elements_by_class_name("teamPositionEditDrag")
+    playerSelectors = []
+
+    submitButton = browser.find_element_by_class_name("submit")
+    
+    for button in dragButtons:
+        if button.tag_name == "td":
+            playerSelectors.append(button)
+
+    for swap in swaps:
+        playerSelectors[swap[0]].click()
+        playerSelectors[swap[1]].click()
+        
+    submitButton.click()
     
     browser.quit()
 
