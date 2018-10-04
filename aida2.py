@@ -6,12 +6,20 @@ from selenium.webdriver.chrome.options import Options
 playerRosterLink = "http://fantasy.nfl.com/league/1179767/team/3?statCategory=projectedStats"
 playerRosterLinkChange = "http://fantasy.nfl.com/league/1179767/team/3"
 signInLink = "https://www.nfl.com/login?s=fantasy&returnTo=http%3A%2F%2Ffantasy.nfl.com%2F%3Ficampaign%3Dfty-nav-hp"
+freeAgentsLink = "http://fantasy.nfl.com/league/1179767/players?playerStatus=available&position=O&statCategory=projectedStats"
 
 positions = [["QB"], ["RB"], ["RB"], ["WR"], ["WR"], ["TE"], ["WR", "RB"], ["BN"], ["BN"], ["BN"], ["BN"], ["BN"], ["BN"]]
 field = [["QB"], ["RB"], ["RB"], ["WR"], ["WR"], ["TE"], ["RB", "WR"]]
 teamSize = 13
 playingSize = 7
 
+
+# Create webdriver and options objects to open headless browser with
+options = Options()
+options.add_argument("--headless")
+browser = webdriver.Chrome("chromedriver.exe")
+
+# Create BeautifulSoup object to read webpages
 soup = bs4.BeautifulSoup(requests.get(playerRosterLink).text, "html.parser")
 roster = soup.findAll("table", {"class": "tableType-player"})[0]
 
@@ -84,31 +92,31 @@ for i in range(0,playingSize):
 ### --- Open Browser Window and Make Swaps --- ###
 
 if len(swaps) > 0:
-    options = Options()
-    options.add_argument("--headless")
-    browser = webdriver.Chrome("chromedriver.exe", chrome_options=options)
-    browser.set_window_size(1000, 1000)
-    passwordFile = open("pass.txt") #Yeah it's in plaintext for now, will change in the future - don't try this at home kids
+    # Open password file
+    passwordFile = open("pass.txt") # Yeah it's in plaintext for now, will change in the future - don't try this at home kids
 
+    # Get username and password
     username = passwordFile.readline().strip()
     password = passwordFile.readline().strip()
-    
+
+    # Open sign-in page
     browser.get(signInLink)
-    
+
+    # Find login fields and sign-in button
     usernameField = browser.find_element_by_id("fanProfileEmailUsername")
     passwordField = browser.find_element_by_id("fanProfilePassword")
     signInButton = browser.find_element_by_xpath("//*[@id='content']/div/div/div[2]/div[1]/div/div[3]/div[2]/main/div/div[2]/div[2]/form/div[3]/button")
-        
+
+    # Fill in username and password and click sign-in button, then navigate to roster page
     usernameField.send_keys(username)
     passwordField.send_keys(password)
     signInButton.click()
     time.sleep(2)
-    
     browser.find_element_by_link_text("TEAM").click()
 
+    # Create list of drag buttons, sort out usable ones, click them in swap order
     dragButtons = browser.find_elements_by_class_name("teamPositionEditDrag")
     playerSelectors = []
-
     submitButton = browser.find_element_by_class_name("submit")
     
     for button in dragButtons:
@@ -123,4 +131,17 @@ if len(swaps) > 0:
     
     browser.quit()
 
+
 ### ------------------------------------------ ###
+###
+### --- Check Free Agents for Better Players --- ###
+
+
+
+### -------------------------------------------- ###
+###
+### --- Open Browser Window and Get Free Agents --- ###
+
+
+
+### ----------------------------------------------- ###
