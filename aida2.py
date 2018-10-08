@@ -139,8 +139,21 @@ if len(swaps) > 0:
 ###
 ### --- Check Free Agents for Better Players --- ###
 
+
+ # DON'T FORGET ABOUT PLAYERS WITH BYE
+
 soup = bs4.BeautifulSoup(requests.get(freeAgentsLink).text, "html.parser")
-agents = soup.findAll("table", {"class": "tableType-player"})[0]
+agents = soup.findAll("table", {"class": "tableType-player"})[0].tbody.findAll("tr")
+
+freeAgents = []
+for i in range(0,len(agents)):
+    freeAgents.append(Player())
+    playerInfo = agents[i].findAll("td", {"class": "playerNameAndInfo"})[0].div
+    freeAgents[i].name = playerInfo.a.text
+    freeAgents[i].pos = playerInfo.em.text[:2]
+    freeAgents[i].points = agents[i].findAll("td", {"class": "projected"})[0].span.text
+    
+
 
 ### -------------------------------------------- ###
 ###
